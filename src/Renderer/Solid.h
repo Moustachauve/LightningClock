@@ -1,15 +1,20 @@
 #pragma once
 
-#include <Adafruit_NeoMatrix.h>
+#include <NeoPixelBrightnessBusGfx.h>
 #include "Renderer.h"
 
 namespace Renderer {
     
-    class Solid : public Renderer
+    template<typename T_PIXEL_METHOD> class Solid : public Renderer<T_PIXEL_METHOD>
     {
     public:
-        Solid(Adafruit_NeoMatrix* pMatrix);
-        virtual ~Solid();
-        virtual void Draw();
+        Solid(T_PIXEL_METHOD* pMatrix) : Renderer<T_PIXEL_METHOD>(pMatrix) {};
+        virtual ~Solid() {};
+        virtual void Draw()
+        {
+            Renderer<T_PIXEL_METHOD>::matrix->setPassThruColor(RgbwColor(0,0,0,75));
+            Renderer<T_PIXEL_METHOD>::matrix->fillScreen(0);
+            Renderer<T_PIXEL_METHOD>::matrix->setPassThruColor();
+        };
     };
 }

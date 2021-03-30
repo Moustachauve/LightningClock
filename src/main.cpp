@@ -3,10 +3,7 @@
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
 
-
-#include <Adafruit_GFX.h>
-#include <Adafruit_NeoMatrix.h>
-#include <Adafruit_NeoPixel.h>
+#include <const.h>
 
 #include<Service/NetworkService.h>
 
@@ -14,40 +11,56 @@
 #include<Renderer/Text.h>
 #include<Renderer/Clock.h>
 
-#define PIN 2
-#define NUM_LEDS 216
-
 const char* ntpServer = "pool.ntp.org";
 const long  gmtOffset_sec = -18000;
 const int   daylightOffset_sec = 3600;
 
 Service::NetworkService networkService;
 
-Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(27, 8, PIN,
+/**Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(27, 8, PIN,
   NEO_MATRIX_BOTTOM     + NEO_MATRIX_LEFT +
   NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG,
   NEO_GRBW           + NEO_KHZ800);
+*/
 
+typedef NeoPixelBrightnessBusGfx<NeoGrbwFeature, Neo800KbpsMethod>  NeoPixelBusType;
 
-Renderer::Renderer* renderer;
-Renderer::Text* textRenderer;
+NeoPixelBusType matrix(MATRIX_WIDTH, MATRIX_HEIGHT, LED_PIN);
+NeoTopology<RowMajorAlternating270Layout> topo(MATRIX_WIDTH, MATRIX_HEIGHT);
+
+uint16_t remap(uint16_t x, uint16_t y) {
+    return topo.Map(x, y);
+}
+
+Renderer::Renderer<NeoPixelBusType>* renderer;
+Renderer::Text<NeoPixelBusType>* textRenderer;
+
+int8_t direction;
 
 void setup()
 {
     Serial.begin(115200);
     Serial.println("Booting");
+    
 
-    matrix.begin();
+    matrix.Begin();
+    matrix.setRemapFunction(&remap);
     matrix.setTextWrap(false);
-    matrix.setBrightness(20);
+    matrix.SetBrightness(20);
     matrix.fillScreen(matrix.Color(0, 125, 125));
+    matrix.SetPixelColor(0, RgbwColor(255, 0, 0, 0));
+    matrix.SetPixelColor(15, RgbwColor(0,255,0,0));
+    matrix.SetPixelColor(16, RgbwColor(0,0,255,0));
+    matrix.SetPixelColor(31, RgbwColor(0,0,0,255));
     matrix.setTextColor(matrix.Color(255, 255, 255));
     matrix.setFont();
+    matrix.setCursor(0, 2);
     matrix.print("Hi:)");
-    matrix.show();
+    matrix.Show();    
 
-    renderer = new Renderer::Solid(&matrix);
-    textRenderer = new Renderer::Text(&matrix);
+    renderer = new Renderer::Solid<NeoPixelBusType>(&matrix);
+    textRenderer = new Renderer::Text<NeoPixelBusType>(&matrix);
+
 
     networkService = Service::NetworkService();
     networkService.Begin();
@@ -88,8 +101,8 @@ void setup()
     configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 
     Serial.println("Setup Completed");
-
-    textRenderer->setText("Hola");
+    
+    delay(1000);
 }
 
 int count = 0;
@@ -98,15 +111,13 @@ void loop()
 {
     ArduinoOTA.handle();
 
-    //matrix.fillScreen(0);
     renderer->Draw();
     textRenderer->Draw();
 
     if (count >= 0 && ++count > 25) {
-        textRenderer = new Renderer::Clock(&matrix);
+        textRenderer = new Renderer::Clock<NeoPixelBusType>(&matrix);
         count = -1;
     }
 
-    matrix.show();
-    delay(80);
+    matrix.Show();
 }

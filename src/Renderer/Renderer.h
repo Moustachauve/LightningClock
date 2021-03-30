@@ -1,17 +1,21 @@
 #pragma once
 
-#include <Adafruit_NeoMatrix.h>
+#include <NeoPixelBrightnessBusGfx.h>
+#include <const.h>
 
 namespace Renderer {
     
-    class Renderer
+    template<typename T_PIXEL_METHOD> class Renderer
     {
     protected:
-        Adafruit_NeoMatrix* matrix;
+        T_PIXEL_METHOD* matrix;
 
     public:
-        Renderer(Adafruit_NeoMatrix* pMatrix);
-        virtual ~Renderer();
+        Renderer(T_PIXEL_METHOD* pMatrix) 
+        {
+            matrix = pMatrix;
+        };
+        virtual ~Renderer() {};
         virtual void Draw() = 0;
     };
 }
