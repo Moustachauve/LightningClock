@@ -7,86 +7,126 @@
 
 namespace Renderer {
     
+    enum TextAlignment
+    {
+        TextAlignLeft = 0,
+        TextAlignCenter = 1,
+        TextAlignRight = 2,
+        TextAlignMarqueeLeft = 3,
+        TextAlignMarqueeRight = 4,
+        TextAlignMarqueeBounce = 5
+    };
+
     template<typename T_PIXEL_METHOD> class Text : public Renderer<T_PIXEL_METHOD>
     {
     private:
         const char* text;
-        int x = 0;
-        int count = 0;
-        int countFont = 0;
-        int pass = 0;
-        
-        // Input a value 0 to 255 to get a color value.
-        // The colours are a transition r - g - b - back to r.
-        uint32_t Wheel(byte WheelPos) 
+        int16_t x = 0;
+        int16_t offsetX = 0;
+        unsigned long prevMillis = 0;
+        uint8_t speed = 85;
+        int8_t direction = 1;
+        RgbwColor color = RgbwColor(0,0,0,255);
+        GFXfont* font = NULL;
+        TextAlignment alignment = TextAlignLeft;
+
+        bool shouldMove()
         {
-            WheelPos = 255 - WheelPos;
-            if(WheelPos < 85) {
-                return Renderer<T_PIXEL_METHOD>::matrix->Color(255 - WheelPos * 3, 0, WheelPos * 3);
+            unsigned long curMillis = millis();  
+            if (curMillis - prevMillis >= speed) {
+                prevMillis = curMillis;
+                return true;
             }
-            if(WheelPos < 170) {
-                WheelPos -= 85;
-                return Renderer<T_PIXEL_METHOD>::matrix->Color(0, WheelPos * 3, 255 - WheelPos * 3);
-            }
-            WheelPos -= 170;
-            return Renderer<T_PIXEL_METHOD>::matrix->Color(WheelPos * 3, 255 - WheelPos * 3, 0);
-        };
+
+            return false;
+        }
+
     public:
         Text(T_PIXEL_METHOD* pMatrix) : Renderer<T_PIXEL_METHOD>(pMatrix) {};
         virtual ~Text() {};
         virtual void Draw()
         {    
-            if (++count >= 255) {
-                count = 0;
-                if (++countFont > 2) {
-                    countFont = 0;
-                }
-            }
+            Renderer<T_PIXEL_METHOD>::matrix->setFont(font);
 
-            switch (countFont)
-            {
-                case 0:
-                    Renderer<T_PIXEL_METHOD>::matrix->setFont();
-                    //matrix.print(F("a"));
-                    break;
-                case 1:
-                    Renderer<T_PIXEL_METHOD>::matrix->setFont(&m5x7);
-                    //matrix.print(F("b"));
-                    break;
-                case 2:
-                    Renderer<T_PIXEL_METHOD>::matrix->setFont(&m3x6);
-                    //matrix.print(F("c"));
-            }
 
-            /*
-            if (countFont == 0) {
-                Renderer<T_PIXEL_METHOD>::matrix->setCursor(x, 0);
-            } else {
-                Renderer<T_PIXEL_METHOD>::matrix->setCursor(x, 6);
-            }
-            */
-
-            // For centering
             int16_t  x1, y1;
             uint16_t w, h;
             Renderer<T_PIXEL_METHOD>::matrix->getTextBounds(text, 0, 0, &x1, &y1, &w, &h);
-            uint16_t leftBorder = (MATRIX_WIDTH - w) / 2;
-            Renderer<T_PIXEL_METHOD>::matrix->setCursor(leftBorder, countFont == 0 ? 0 : 6);
+            switch (alignment)
+            {
+            case TextAlignCenter:
+                x = (MATRIX_WIDTH - w) / 2;
+                Renderer<T_PIXEL_METHOD>::matrix->setCursor(x, !font ? 0 : 6);
+                break;
+                
+            case TextAlignRight:
+                x = MATRIX_WIDTH - w + offsetX;
+                Renderer<T_PIXEL_METHOD>::matrix->setCursor(x, !font ? 0 : 6);
+                break;
+                
+            case TextAlignMarqueeLeft:
+                if (shouldMove() && --x <= -(w + offsetX)) {
+                    x = MATRIX_WIDTH;
+                }
+                Renderer<T_PIXEL_METHOD>::matrix->setCursor(x, !font ? 0 : 6);
+                break;
 
+            case TextAlignMarqueeRight:
+                if (shouldMove() && ++x >= MATRIX_WIDTH) {
+                    x = -w;
+                }
+                Renderer<T_PIXEL_METHOD>::matrix->setCursor(x, !font ? 0 : 6);
+                break;
+
+            case TextAlignMarqueeBounce:
+                if (shouldMove()) {
+                    x += direction;
+                    if (x <= -(w + offsetX)) {
+                        direction = 1;
+                    } else if (x >= MATRIX_WIDTH + offsetX) {
+                        direction = -1;
+                    }
+                }
+                Renderer<T_PIXEL_METHOD>::matrix->setCursor(x, !font ? 0 : 6);
+                break;
+            
+            case TextAlignLeft:
+            default:
+                Renderer<T_PIXEL_METHOD>::matrix->setCursor(0 + offsetX, !font ? 0 : 6);
+                break;
+            }            
+
+            Renderer<T_PIXEL_METHOD>::matrix->setPassThruColor(color);
             Renderer<T_PIXEL_METHOD>::matrix->print(text);
-
-
-            // For scrolling text
-            /*if(--x < -46) {
-                x = matrix.width();
-            }*/
-
-
-            Renderer<T_PIXEL_METHOD>::matrix->setTextColor(Wheel((count) & 255));
+            Renderer<T_PIXEL_METHOD>::matrix->setPassThruColor();
         };
         void setText(const char* pText) 
         {
             text = pText;
         };
+        void setColor(RgbwColor pColor)
+        {
+            color = pColor;
+        }
+        void setAlignment(TextAlignment pAlignment)
+        {
+            alignment = pAlignment;
+        }
+        void setSpeed(uint8_t pSpeed)
+        {
+            speed = pSpeed;
+        }
+        void setFont(const GFXfont* pFont)
+        {
+            if (!pFont) {
+                font = NULL;
+                return;
+            }
+            font = (GFXfont *)pFont;
+        }
+        void setOffsetX(int16_t pOffset)
+        {
+            offsetX = pOffset;
+        }
     };
 }

@@ -44,6 +44,7 @@ void setup()
     
 
     matrix.Begin();
+    matrix.Show();
     matrix.setRemapFunction(&remap);
     matrix.setTextWrap(false);
     matrix.SetBrightness(20);
@@ -54,9 +55,9 @@ void setup()
     matrix.SetPixelColor(31, RgbwColor(0,0,0,255));
     matrix.setTextColor(matrix.Color(255, 255, 255));
     matrix.setFont();
-    matrix.setCursor(0, 2);
+    matrix.setCursor(2, 0);
     matrix.print("Hi:)");
-    matrix.Show();    
+    matrix.Show();
 
     renderer = new Renderer::Solid<NeoPixelBusType>(&matrix);
     textRenderer = new Renderer::Text<NeoPixelBusType>(&matrix);
@@ -99,10 +100,10 @@ void setup()
     ArduinoOTA.begin();
 
     configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+    textRenderer = new Renderer::Clock<NeoPixelBusType>(&matrix);
+    textRenderer->setAlignment(Renderer::TextAlignLeft);
 
     Serial.println("Setup Completed");
-    
-    delay(1000);
 }
 
 int count = 0;
@@ -114,8 +115,9 @@ void loop()
     renderer->Draw();
     textRenderer->Draw();
 
-    if (count >= 0 && ++count > 25) {
-        textRenderer = new Renderer::Clock<NeoPixelBusType>(&matrix);
+    if (count >= 0 && ++count > 200) {
+        textRenderer->setFont(&m5x7);
+        textRenderer->setAlignment(Renderer::TextAlignMarqueeBounce);
         count = -1;
     }
 

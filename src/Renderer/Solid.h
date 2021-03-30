@@ -12,7 +12,7 @@ namespace Renderer {
         virtual ~Solid() {};
         virtual void Draw()
         {
-            Renderer<T_PIXEL_METHOD>::matrix->setPassThruColor(RgbwColor(0,0,0,75));
+            Renderer<T_PIXEL_METHOD>::matrix->setPassThruColor(RgbwColor(0,255,255,0));
             Renderer<T_PIXEL_METHOD>::matrix->fillScreen(0);
             Renderer<T_PIXEL_METHOD>::matrix->setPassThruColor();
         };
