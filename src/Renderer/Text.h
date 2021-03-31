@@ -14,7 +14,8 @@ namespace Renderer {
         TextAlignRight = 2,
         TextAlignMarqueeLeft = 3,
         TextAlignMarqueeRight = 4,
-        TextAlignMarqueeBounce = 5
+        TextAlignMarqueeAlternate = 5,
+        TextAlignMarqueeBounce = 6
     };
 
     template<typename T_PIXEL_METHOD> class Text : public Renderer<T_PIXEL_METHOD>
@@ -78,13 +79,34 @@ namespace Renderer {
                 Renderer<T_PIXEL_METHOD>::matrix->setCursor(x, !font ? 0 : 6);
                 break;
 
-            case TextAlignMarqueeBounce:
+            case TextAlignMarqueeAlternate:
                 if (shouldMove()) {
                     x += direction;
                     if (x <= -(w + offsetX)) {
                         direction = 1;
                     } else if (x >= MATRIX_WIDTH + offsetX) {
                         direction = -1;
+                    }
+                }
+                Renderer<T_PIXEL_METHOD>::matrix->setCursor(x, !font ? 0 : 6);
+                break;
+
+            case TextAlignMarqueeBounce:
+                if (shouldMove()) {
+                    if (w + offsetX < MATRIX_WIDTH) {
+                        x += direction;
+                        if (x <= offsetX) {
+                            direction = 1;
+                        } else if (x + w >= MATRIX_WIDTH + offsetX) {
+                            direction = -1;
+                        }
+                    } else if (w + offsetX > MATRIX_WIDTH) {
+                        x += direction;
+                        if (x + w <= MATRIX_WIDTH + offsetX) {
+                            direction = 1;
+                        } else if (x >= offsetX) {
+                            direction = -1;
+                        }
                     }
                 }
                 Renderer<T_PIXEL_METHOD>::matrix->setCursor(x, !font ? 0 : 6);
