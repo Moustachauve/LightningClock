@@ -6,6 +6,8 @@
 #include <const.h>
 
 #include<Service/NetworkService.h>
+#include<Web/Server.h>
+#include<Service/RendererManager.h>
 
 #include<Renderer/Solid.h>
 #include<Renderer/Text.h>
@@ -16,6 +18,7 @@ const long  gmtOffset_sec = -18000;
 const int   daylightOffset_sec = 3600;
 
 Service::NetworkService networkService;
+Web::Server server;
 
 /**Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(27, 8, PIN,
   NEO_MATRIX_BOTTOM     + NEO_MATRIX_LEFT +
@@ -26,6 +29,10 @@ Service::NetworkService networkService;
 typedef NeoPixelBrightnessBusGfx<NeoGrbwFeature, Neo800KbpsMethod>  NeoPixelBusType;
 
 NeoPixelBusType matrix(MATRIX_WIDTH, MATRIX_HEIGHT, LED_PIN);
+
+// Upside down
+//NeoTopology<RowMajorAlternating90Layout> topo(MATRIX_WIDTH, MATRIX_HEIGHT);
+
 NeoTopology<RowMajorAlternating270Layout> topo(MATRIX_WIDTH, MATRIX_HEIGHT);
 
 uint16_t remap(uint16_t x, uint16_t y) {
@@ -58,10 +65,6 @@ void setup()
     matrix.setCursor(2, 0);
     matrix.print("Hi:)");
     matrix.Show();
-
-    renderer = new Renderer::Solid<NeoPixelBusType>(&matrix);
-    textRenderer = new Renderer::Text<NeoPixelBusType>(&matrix);
-
 
     networkService = Service::NetworkService();
     networkService.Begin();
@@ -98,10 +101,21 @@ void setup()
         });
 
     ArduinoOTA.begin();
+    server.Begin();
 
     configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
-    textRenderer = new Renderer::Clock<NeoPixelBusType>(&matrix);
-    textRenderer->setAlignment(Renderer::TextAlignLeft);
+
+    renderer = new Renderer::Solid<NeoPixelBusType>(&matrix);
+    textRenderer = new Renderer::Text<NeoPixelBusType>(&matrix);
+
+    Service::RendererManager::Get().setBackground(renderer);
+    Service::RendererManager::Get().setForeground(textRenderer);
+
+    //textRenderer = new Renderer::Clock<NeoPixelBusType>(&matrix);
+    textRenderer->setText("Ready");
+    textRenderer->setAlignment(Renderer::TextAlignMarqueeBounce);
+    textRenderer->setColor(RgbwColor(0, 0, 0, 255));
+    textRenderer->setFont(&m5x7);
 
     Serial.println("Setup Completed");
 }
@@ -114,12 +128,6 @@ void loop()
 
     renderer->Draw();
     textRenderer->Draw();
-
-    if (count >= 0 && ++count > 200) {
-        textRenderer->setFont(&m5x7);
-        textRenderer->setAlignment(Renderer::TextAlignMarqueeBounce);
-        count = -1;
-    }
 
     matrix.Show();
 }

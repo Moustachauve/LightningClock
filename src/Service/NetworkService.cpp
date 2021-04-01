@@ -1,25 +1,28 @@
 #include "NetworkService.h"
 
-void Service::NetworkService::Begin()
+namespace Service 
 {
-    WiFi.mode(WIFI_STA);
-    WiFi.begin(ssid, password);
-    while (WiFi.waitForConnectResult() != WL_CONNECTED)
+    void NetworkService::Begin()
     {
-        Serial.println("Connection Failed! Rebooting...");
-        delay(5000);
-        ESP.restart();
+        WiFi.mode(WIFI_STA);
+        WiFi.begin(ssid, password);
+        while (WiFi.waitForConnectResult() != WL_CONNECTED)
+        {
+            Serial.println("Connection Failed! Rebooting...");
+            delay(5000);
+            ESP.restart();
+        }
+
+        Serial.println("Network Ready");
+        Serial.print("IP address: ");
+        Serial.println(WiFi.localIP());
     }
 
-    Serial.println("Network Ready");
-    Serial.print("IP address: ");
-    Serial.println(WiFi.localIP());
-}
+    NetworkService::NetworkService()
+    {
+    }
 
-Service::NetworkService::NetworkService()
-{
-}
-
-Service::NetworkService::~NetworkService()
-{
+    NetworkService::~NetworkService()
+    {
+    }
 }
