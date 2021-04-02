@@ -8,7 +8,7 @@ namespace Renderer {
     template<typename T_PIXEL_METHOD> class Solid : public Renderer<T_PIXEL_METHOD>
     {
     protected:
-        RgbwColor color = RgbwColor(0, 255, 0, 0);
+        RgbwColor color = HtmlColor(DEFAULT_BACKGROUND_COLOR);
     public:
         Solid(T_PIXEL_METHOD* pMatrix) : Renderer<T_PIXEL_METHOD>(pMatrix) {};
         virtual ~Solid() {};

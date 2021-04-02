@@ -10,6 +10,7 @@
 #include<Service/RendererManager.h>
 
 #include<Renderer/Solid.h>
+#include<Renderer/Heartbeat.h>
 #include<Renderer/Text.h>
 #include<Renderer/Clock.h>
 
@@ -55,12 +56,12 @@ void setup()
     matrix.setRemapFunction(&remap);
     matrix.setTextWrap(false);
     matrix.SetBrightness(20);
-    matrix.fillScreen(matrix.Color(0, 125, 125));
+    matrix.fillScreen(DEFAULT_BACKGROUND_COLOR);
     matrix.SetPixelColor(0, RgbwColor(255, 0, 0, 0));
     matrix.SetPixelColor(15, RgbwColor(0,255,0,0));
     matrix.SetPixelColor(16, RgbwColor(0,0,255,0));
     matrix.SetPixelColor(31, RgbwColor(0,0,0,255));
-    matrix.setTextColor(matrix.Color(255, 255, 255));
+    matrix.setTextColor(DEFAULT_FOREGROUND_COLOR);
     matrix.setFont();
     matrix.setCursor(2, 0);
     matrix.print("Hi:)");
@@ -105,15 +106,17 @@ void setup()
 
     configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 
-    renderer = new Renderer::Solid<NeoPixelBusType>(&matrix);
-    textRenderer = new Renderer::Text<NeoPixelBusType>(&matrix);
+    //renderer = new Renderer::Solid<NeoPixelBusType>(&matrix);
+    renderer = new Renderer::Heartbeat<NeoPixelBusType>(&matrix);
+
+    //textRenderer = new Renderer::Text<NeoPixelBusType>(&matrix);
+    textRenderer = new Renderer::Clock<NeoPixelBusType>(&matrix);
 
     Service::RendererManager::Get().setBackground(renderer);
     Service::RendererManager::Get().setForeground(textRenderer);
 
-    //textRenderer = new Renderer::Clock<NeoPixelBusType>(&matrix);
-    textRenderer->setText("Ready");
-    textRenderer->setAlignment(Renderer::TextAlignMarqueeBounce);
+    //textRenderer->setText("Ready");
+    textRenderer->setAlignment(Renderer::TextAlignCenter);
     textRenderer->setColor(RgbwColor(0, 0, 0, 255));
     textRenderer->setFont(&m5x7);
 
@@ -126,8 +129,7 @@ void loop()
 {
     ArduinoOTA.handle();
 
-    renderer->Draw();
-    textRenderer->Draw();
+    Service::RendererManager::Get().Draw();
 
     matrix.Show();
 }

@@ -35,4 +35,17 @@ namespace Service
     {
         this->foreground = foreground;
     }
+
+    void RendererManager::Draw()
+    {
+        uint32_t now = millis();
+        if (now > nextTime) {
+            yield();
+            background->Draw();
+            yield();
+            foreground->Draw();
+
+            nextTime = now + TARGET_FRAMETIME;
+        }
+    }
 }

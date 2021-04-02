@@ -27,7 +27,7 @@ namespace Renderer {
         unsigned long prevMillis = 0;
         uint8_t speed = 85;
         int8_t direction = 1;
-        RgbwColor color = RgbwColor(0,0,0,255);
+        RgbwColor color = HtmlColor(DEFAULT_FOREGROUND_COLOR);
         GFXfont* font = NULL;
         TextAlignment alignment = TextAlignLeft;
 

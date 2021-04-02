@@ -12,6 +12,7 @@ namespace Service
     private:
         RendererManager();
         ~RendererManager();
+        unsigned long nextTime;
 
     protected:
         Renderer::Renderer<NeoPixelBusType>* background;
@@ -25,5 +26,7 @@ namespace Service
         
         Renderer::Text<NeoPixelBusType>* getForeground();
         void setForeground(Renderer::Text<NeoPixelBusType>* foreground);
+
+        void Draw();
     };
 }
