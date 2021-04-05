@@ -9,7 +9,10 @@
 #define MATRIX_HEIGHT 8
 #define LED_COUNT (MATRIX_WIDTH * MATRIX_HEIGHT)
 
-typedef NeoPixelBrightnessBusGfx<NeoGrbwFeature, Neo800KbpsMethod>  NeoPixelBusType;
+typedef NeoPixelBrightnessBusGfx<NeoGrbwFeature, Neo800KbpsMethod> NeoPixelBusType;
+
+//typedef NeoTopology<RowMajorAlternating90Layout> NeoPixelTopology; // Upside down
+typedef NeoTopology<RowMajorAlternating270Layout> NeoPixelTopology;
 
 
 #define TARGET_FPS 42

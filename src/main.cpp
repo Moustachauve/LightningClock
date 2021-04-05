@@ -12,6 +12,7 @@
 #include<Renderer/Solid.h>
 #include<Renderer/Heartbeat.h>
 #include<Renderer/Text.h>
+#include<Renderer/Dna.h>
 #include<Renderer/Clock.h>
 
 const char* ntpServer = "pool.ntp.org";
@@ -31,13 +32,13 @@ typedef NeoPixelBrightnessBusGfx<NeoGrbwFeature, Neo800KbpsMethod>  NeoPixelBusT
 
 NeoPixelBusType matrix(MATRIX_WIDTH, MATRIX_HEIGHT, LED_PIN);
 
-// Upside down
-//NeoTopology<RowMajorAlternating90Layout> topo(MATRIX_WIDTH, MATRIX_HEIGHT);
-
-NeoTopology<RowMajorAlternating270Layout> topo(MATRIX_WIDTH, MATRIX_HEIGHT);
-
+// For NeoPixelBus
 uint16_t remap(uint16_t x, uint16_t y) {
-    return topo.Map(x, y);
+    return Service::RendererManager::Get().Map(x, y);
+}
+// For FastLED
+uint16_t XY(uint8_t x, uint8_t y) {
+    return remap(x, y);
 }
 
 Renderer::Renderer<NeoPixelBusType>* renderer;
@@ -107,7 +108,8 @@ void setup()
     configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 
     //renderer = new Renderer::Solid<NeoPixelBusType>(&matrix);
-    renderer = new Renderer::Heartbeat<NeoPixelBusType>(&matrix);
+    //renderer = new Renderer::Heartbeat<NeoPixelBusType>(&matrix);
+    renderer = new Renderer::Dna<NeoPixelBusType>(&matrix);
 
     //textRenderer = new Renderer::Text<NeoPixelBusType>(&matrix);
     textRenderer = new Renderer::Clock<NeoPixelBusType>(&matrix);

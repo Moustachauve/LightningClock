@@ -4,7 +4,8 @@
 #include <const.h>
 
 #define FASTLED_INTERNAL 
-#include <FastLed.h>
+#include <FastLED.h>
+#include <FastLedCustom.h>
 
 
 namespace Renderer {

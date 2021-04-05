@@ -48,4 +48,13 @@ namespace Service
             nextTime = now + TARGET_FRAMETIME;
         }
     }
+
+    uint16_t RendererManager::Map(uint16_t x, uint16_t y) {
+        return topo.Map(x, y);
+    }
+    
+    uint32_t RendererManager::crgb_to_col(CRGB fastled)
+    {
+        return (((uint32_t)fastled.red << 16) | ((uint32_t)fastled.green << 8) | fastled.blue);
+    }
 }
