@@ -21,6 +21,7 @@ namespace Renderer {
         float mn =255.0/13.8;
         //awesome wu_pixel procedure by reddit u/sutaburosu
         void wu_pixel(uint32_t x, uint32_t y, CRGB * col) {
+            auto leds = Service::RendererManager::Get().leds;
             // extract the fractional parts and derive their inverses
             uint8_t xx = x & 0xff, yy = y & 0xff, ix = 255 - xx, iy = 255 - yy;
             // calculate the intensities for each affected pixel
@@ -39,7 +40,6 @@ namespace Renderer {
     protected:
         uint8_t speed = 10;
         uint16_t freq = 2500;
-        CRGB leds[LED_COUNT];
 
     public:
         Dna(T_PIXEL_METHOD* pMatrix) : Renderer<T_PIXEL_METHOD>(pMatrix) {};
@@ -47,6 +47,7 @@ namespace Renderer {
 
         virtual void Draw()
         {
+            auto leds = Service::RendererManager::Get().leds;
             fadeToBlackBy(leds, LED_COUNT, 40);
 
             for (int i = 0; i < MATRIX_WIDTH; i++)
@@ -68,25 +69,6 @@ namespace Renderer {
             for (int i = 0; i < LED_COUNT; i++) {
                 Renderer<T_PIXEL_METHOD>::matrix->SetPixelColor(i, RgbColor(leds[i].r, leds[i].g, leds[i].b));
             }
-
-            /*
-            fadeToBlackBy(leds, LED_COUNT, 200);
-            uint8_t hue = 0;
-
-            for(int i = 0; i < MATRIX_WIDTH; i++) {
-                int led = Service::RendererManager::Get().Map(i, beatsin8(10, 0, MATRIX_HEIGHT - 1, 0, i*4));
-                leds[led] = CHSV(-hue + i * 5, beatsin8(25, 200, 255, 0, i * 3), beatsin8(5, 55, 255, 0, i * 10));    
-
-                // 180 degrees (128) out of phase
-                led = Service::RendererManager::Get().Map(i, beatsin8(10, 0, MATRIX_HEIGHT - 1, 0, i * 4 + 128));
-                leds[led] = CHSV(hue+i*5+128, beatsin8(25, 200, 255, 0, i*3), beatsin8(5, 55, 255, 0, i*10+128));
-            }
-            //Cblur2d(leds, MATRIX_WIDTH, MATRIX_HEIGHT, 16);
-
-            for (int i = 0; i < LED_COUNT; i++) {
-                Renderer<T_PIXEL_METHOD>::matrix->SetPixelColor(i, RgbColor(leds[i].r, leds[i].g, leds[i].b));
-            }
-            */
             };
     };
 }
