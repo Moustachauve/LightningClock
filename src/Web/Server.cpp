@@ -15,7 +15,7 @@ namespace Web
     {
         Serial.write("Setting Routes\n");
         asyncServer.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-            request->send(200, "text/plain", "Hello, world");
+            request->send(SPIFFS, "/index.html");
         });
 
         asyncServer.on("/text", HTTP_GET, std::bind(&Server::SetText, this, std::placeholders::_1));
@@ -24,6 +24,7 @@ namespace Web
     void Server::Begin() 
     {
         Serial.write("Web begin\n");
+        SPIFFS.begin(true);
         SetRoutes();
         asyncServer.begin();
     }

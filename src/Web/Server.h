@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ESPAsyncWebServer.h>
+#include "SPIFFS.h"
 #include <AsyncTCP.h>
 
 #include <const.h>
