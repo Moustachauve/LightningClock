@@ -23,6 +23,8 @@ namespace Service
     public:
         static RendererManager& Get();
 
+        CRGB leds[LED_COUNT];
+
         Renderer::Renderer<NeoPixelBusType>* getBackground();
         void setBackground(Renderer::Renderer<NeoPixelBusType>* background);
         

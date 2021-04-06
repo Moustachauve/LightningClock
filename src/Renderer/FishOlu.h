@@ -7,16 +7,15 @@
 
 namespace Renderer {
     // 'fish', 13x8px
-const unsigned char fish [] PROGMEM = {
-    0x03, 0xc0, 0x87, 0xe0, 0xcf, 0xb0, 0xff, 0xf8, 0xff, 0xf8, 0xcf, 0xf0, 0x87, 0xe0, 0x03, 0xc0
-};
-
+    const unsigned char fish [] PROGMEM = {
+        0x03, 0xc0, 0x87, 0xe0, 0xcf, 0xb0, 0xff, 0xf8, 0xff, 0xf8, 0xcf, 0xf0, 0x87, 0xe0, 0x03, 0xc0
+    };
 
     template<typename T_PIXEL_METHOD> class FishOlu : public Solid<T_PIXEL_METHOD>
     {
     private:
-        int fishX = -14;
-        int speed = 55;
+        int16_t fishX = -14;
+        int8_t speed = 55;
         unsigned long prevMillis;
     public:
         FishOlu(T_PIXEL_METHOD* pMatrix) : Solid<T_PIXEL_METHOD>(pMatrix) {};
