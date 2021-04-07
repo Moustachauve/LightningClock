@@ -15,7 +15,7 @@ typedef NeoPixelBrightnessBusGfx<NeoGrbwFeature, Neo800KbpsMethod> NeoPixelBusTy
 typedef NeoTopology<RowMajorAlternating270Layout> NeoPixelTopology;
 
 
-#define TARGET_FPS 42
+#define TARGET_FPS 60
 #define TARGET_FRAMETIME (1000/TARGET_FPS)
 
 #define DEFAULT_BACKGROUND_COLOR 0x00FFFF

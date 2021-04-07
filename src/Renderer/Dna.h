@@ -39,7 +39,7 @@ namespace Renderer {
  
     protected:
         uint8_t speed = 10;
-        uint16_t freq = 2500;
+        uint16_t freq = 1500;
 
     public:
         Dna(T_PIXEL_METHOD* pMatrix) : Renderer<T_PIXEL_METHOD>(pMatrix) {};

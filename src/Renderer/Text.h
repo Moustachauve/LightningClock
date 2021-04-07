@@ -21,7 +21,7 @@ namespace Renderer {
     template<typename T_PIXEL_METHOD> class Text : public Renderer<T_PIXEL_METHOD>
     {
     private:
-        const char* text;
+        const char* text = "";
         int16_t x = 0;
         int16_t offsetX = 0;
         unsigned long prevMillis = 0;
