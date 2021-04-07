@@ -13,6 +13,7 @@
 #include<Renderer/Heartbeat.h>
 #include<Renderer/Text.h>
 #include<Renderer/Dna.h>
+#include<Renderer/Pong.h>
 #include<Renderer/Clock.h>
 
 const char* ntpServer = "pool.ntp.org";
@@ -110,6 +111,7 @@ void setup()
     //renderer = new Renderer::Solid<NeoPixelBusType>(&matrix);
     //renderer = new Renderer::Heartbeat<NeoPixelBusType>(&matrix);
     renderer = new Renderer::Dna<NeoPixelBusType>(&matrix);
+    //renderer = new Renderer::Pong<NeoPixelBusType>(&matrix);
 
     //textRenderer = new Renderer::Text<NeoPixelBusType>(&matrix);
     textRenderer = new Renderer::Clock<NeoPixelBusType>(&matrix);
