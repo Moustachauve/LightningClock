@@ -1,0 +1,10 @@
+body {
+    background-color: #1A1A1D;
+    color: #fafafa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.action-button {
+    height: 200px;
+    min-width: 200px;
+}

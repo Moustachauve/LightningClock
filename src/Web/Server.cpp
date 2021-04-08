@@ -19,6 +19,8 @@ namespace Web
         });
 
         asyncServer.on("/text", HTTP_GET, std::bind(&Server::SetText, this, std::placeholders::_1));
+
+        asyncServer.serveStatic("/", SPIFFS, "/").setDefaultFile("index.htm");
     }
 
     void Server::Begin() 
@@ -26,6 +28,8 @@ namespace Web
         Serial.write("Web begin\n");
         SPIFFS.begin(true);
         SetRoutes();
+        asyncWebSocket.onEvent(OnWsEvent);
+        asyncServer.addHandler(&asyncWebSocket);
         asyncServer.begin();
     }
 
@@ -43,5 +47,10 @@ namespace Web
 
         Service::RendererManager::Get().getForeground()->setText(text);
         request->send(200, "text/plain", "Done");
+    }
+
+    void Server::WsCleanupClients() 
+    {
+        asyncWebSocket.cleanupClients();
     }
 }

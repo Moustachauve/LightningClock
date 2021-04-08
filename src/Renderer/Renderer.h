@@ -34,5 +34,8 @@ namespace Renderer {
         };
         virtual ~Renderer() {};
         virtual void Draw() = 0;
+        virtual void OnWsEvent(AsyncWebSocket * wsServer, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len)
+        {
+        }
     };
 }

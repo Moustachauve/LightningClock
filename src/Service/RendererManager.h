@@ -2,6 +2,7 @@
 
 #include <const.h>
 #include <NeoPixelBrightnessBusGfx.h>
+#include <ESPAsyncWebServer.h>
 #include <Renderer/Text.h>
 #include <Renderer/Clock.h>
 #include <Renderer/Renderer.h>
@@ -34,5 +35,7 @@ namespace Service
         void Draw();
         uint16_t Map(uint16_t x, uint16_t y);
         uint32_t crgb_to_col(CRGB fastled);
+
+        void OnWsEvent(AsyncWebSocket * wsServer, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len);
     };
 }

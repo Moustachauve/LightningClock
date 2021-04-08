@@ -16,7 +16,8 @@ namespace Renderer {
     {
     private:
         const uint8_t PLAYER_HEIGHT = 3;
-        const uint8_t PLAYER_OFFSET = 1;
+        const uint8_t PLAYER_OFFSET = 0;
+        const float START_SPEED = 0.08;
 
         PongGameState state = PongGameState::init;
 
@@ -24,14 +25,14 @@ namespace Renderer {
 
         float ballX = MATRIX_WIDTH / 2;
         float ballY = MATRIX_HEIGHT / 2;
-        float ballSpeedX = 0.05;
-        float ballSpeedY = 0.05;
+        float ballSpeedX = START_SPEED;
+        float ballSpeedY = START_SPEED;
 
         uint8_t scoreP1 = 0;
         uint8_t scoreP2 = 0;
 
-        uint8_t player1Y = (MATRIX_HEIGHT - PLAYER_HEIGHT) / 2;
-        uint8_t player2Y = player1Y;
+        int8_t player1Y = (MATRIX_HEIGHT - PLAYER_HEIGHT) / 2;
+        int8_t player2Y = player1Y;
 
         void DrawObjects()
         {
@@ -43,8 +44,9 @@ namespace Renderer {
             // Player 2
             Renderer<T_PIXEL_METHOD>::matrix->drawLine(MATRIX_WIDTH - 1 - PLAYER_OFFSET, player2Y, MATRIX_WIDTH - 1 - PLAYER_OFFSET, player2Y + PLAYER_HEIGHT, 0);
 
-            if (state == PongGameState::active) {
+            if (state != PongGameState::init) {
                 // Ball
+                Renderer<T_PIXEL_METHOD>::matrix->setPassThruColor(RgbwColor(255, 0, 0, 255));
                 Renderer<T_PIXEL_METHOD>::matrix->drawPixel(ballX, ballY, 0);
             }
 
@@ -53,11 +55,19 @@ namespace Renderer {
 
         void MoveBall()
         {
-            if (ballX <= 0) {
-                Score(scoreP2);
-            } else if (ballX >= MATRIX_WIDTH) {
-                Score(scoreP1);
+            float nextBallX = ballX + ballSpeedX;
+
+            if (round(nextBallX) <= 1 + PLAYER_OFFSET && ballY >= player1Y && ballY <= player1Y + PLAYER_HEIGHT) {
+                ballSpeedX *= -1.05;
+            } else if (round(nextBallX) >= MATRIX_WIDTH - 1 - PLAYER_OFFSET && ballY >= player2Y && ballY <= player2Y + PLAYER_HEIGHT) {
+                ballSpeedX *= -1.05;
             }
+
+            if (ballX <= 0 + PLAYER_OFFSET) {
+                Score(scoreP2);
+            } else if (ballX >= MATRIX_WIDTH - 1 - PLAYER_OFFSET) {
+                Score(scoreP1);
+            } 
 
             if (round(ballY) <= 0) {
                 ballSpeedY *= -1;
@@ -91,6 +101,16 @@ namespace Renderer {
             state = PongGameState::score;
             scoreVariable++;
             prevMillis = millis();
+            if (scoreVariable == scoreP1) {
+                ballSpeedX = START_SPEED;
+            } else {
+                ballSpeedX = -START_SPEED;
+            }
+            ballSpeedY = START_SPEED;
+        }
+
+        void ResetBall()
+        {
             ballSpeedX *= -1;
             ballX = MATRIX_WIDTH / 2;
             ballY = MATRIX_HEIGHT / 2;
@@ -112,8 +132,21 @@ namespace Renderer {
             unsigned long curMillis = millis(); 
             if (curMillis - prevMillis >= 3000) {
                 state = PongGameState::active;
+                ResetBall();
             }
         }
+
+        void moveP1(int8_t direction)
+        {
+            moveP2(direction);
+            player1Y += direction;
+        }
+
+        void moveP2(int8_t direction) 
+        {
+            player2Y += direction;
+        }
+
     public:
         Pong(T_PIXEL_METHOD* pMatrix) : Renderer<T_PIXEL_METHOD>(pMatrix) 
         {
@@ -135,5 +168,21 @@ namespace Renderer {
             DrawObjects();
         };
 
+        void OnWsEvent(AsyncWebSocket * wsServer, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) override
+        {
+            AwsFrameInfo *info = (AwsFrameInfo *)arg;
+            if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT)
+            {
+                data[len] = 0;
+                if (strcmp((char *)data, "controller-up") == 0)
+                {
+                    moveP1(-1);
+                }
+                if (strcmp((char *)data, "controller-down") == 0)
+                {
+                    moveP1(1);
+                }
+            }
+        }
     };
 }

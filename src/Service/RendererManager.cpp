@@ -57,4 +57,10 @@ namespace Service
     {
         return (((uint32_t)fastled.red << 16) | ((uint32_t)fastled.green << 8) | fastled.blue);
     }
+
+    void RendererManager::OnWsEvent(AsyncWebSocket * wsServer, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len)
+    {
+        background->OnWsEvent(wsServer, client, type, arg, data, len);
+        foreground->OnWsEvent(wsServer, client, type, arg, data, len);
+    }
 }

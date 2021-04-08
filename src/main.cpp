@@ -132,8 +132,35 @@ int count = 0;
 void loop()
 {
     ArduinoOTA.handle();
+    server.WsCleanupClients();
 
     Service::RendererManager::Get().Draw();
 
     matrix.Show();
+}
+
+void OnWsEvent(AsyncWebSocket * wsServer, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len)
+{
+    switch (type)
+    {
+    case WS_EVT_CONNECT:
+        Serial.println("Websocket client connection received");
+        client->text("Hello from ESP32 Server");
+        break;
+
+    case WS_EVT_DISCONNECT:
+        Serial.println("Client disconnected");
+        break;
+    
+    case WS_EVT_DATA:
+        Serial.println("WS data received");
+        Service::RendererManager::Get().OnWsEvent(wsServer, client, type, arg, data, len);
+        break;
+
+
+    case WS_EVT_PONG:
+    case WS_EVT_ERROR:
+    default:
+        break;
+    }
 }
